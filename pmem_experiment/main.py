@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 from langchain_mcp_adapters.client import MultiServerMCPClient
+from langchain_core.messages import ToolMessage
 
 # Load API keys
 load_dotenv()
@@ -36,9 +37,14 @@ async def run_supervisor():
         {"messages": [("user", query)]}, stream_mode="values"
     ):
         message = event["messages"][-1]
-        if hasattr(message, "content") and message.content:
+        if isinstance(message, ToolMessage):
+            print(f"🛠️  [TOOL CALLED]: {message.name}")
+            print(f"{message.content}")
+            # Optional: print(f"Result: {message.content[:100]}...")
+        elif hasattr(message, "content") and message.content:
             print(f"[{message.type.upper()}]: {message.content}")
-            print("-" * 40)
+
+        print("-" * 40)
 
 
 if __name__ == "__main__":
