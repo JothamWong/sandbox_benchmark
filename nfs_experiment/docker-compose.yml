@@ -39,7 +39,7 @@ services:
       sh -c "
       apt-get update && apt-get install -y nfs-common &&
       mkdir -p /mnt/nas &&
-      mount -t nfs -o nolock,vers=4,soft,noac nas:/ /mnt/nas &&
+      mount -t nfs -o nolock,vers=4,soft,ac,actimeo=30 nas:/ /mnt/nas &&
       pip install requests &&
       tail -f /dev/null
       "
@@ -58,7 +58,7 @@ services:
       sh -c "
       apt-get update && apt-get install -y nfs-common &&
       mkdir -p /mnt/nas &&
-      mount -t nfs -o nolock,vers=4,soft,noac nas:/ /mnt/nas &&
+      mount -t nfs -o nolock,vers=4,soft,ac,actimeo=30 nas:/ /mnt/nas &&
       pip install python-pptx &&
       tail -f /dev/null
       "
@@ -77,7 +77,7 @@ services:
       sh -c "
       apt-get update && apt-get install -y nfs-common &&
       mkdir -p /mnt/nas &&
-      mount -t nfs -o nolock,vers=4,soft,noac nas:/ /mnt/nas &&
+      mount -t nfs -o nolock,vers=4,soft,ac,actimeo=30 nas:/ /mnt/nas &&
       tail -f /dev/null
       "
 
