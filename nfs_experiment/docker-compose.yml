@@ -1,0 +1,86 @@
+services:
+  # --- The "Real NAS" (NFS Server) ---
+  nas:
+    image: itsthenetwork/nfs-server-alpine:latest
+    container_name: nas-server
+    privileged: true
+    environment:
+      - SHARED_DIRECTORY=/nfsshare
+    volumes:
+      - nas_data:/nfsshare
+    ports:
+      # HOST:CONTAINER
+      # We change the host port to 42049 to avoid conflict.
+      # The internal port MUST remain 2049.
+      - "42049:2049"
+    entrypoint: >
+      sh -c "
+      apk add --no-cache iproute2 || true;
+      tc qdisc add dev eth0 root netem delay 15ms || echo 'TC failed, but continuing...';
+      /usr/bin/nfsd.sh;
+      "
+    healthcheck:
+      # Use 127.0.0.1 to avoid DNS issues and give it more time (10s * 10 = 100s max)
+      test: "nc -z 127.0.0.1 2049"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # --- Agent Sandboxes ---
+  browser_sandbox:
+    image: python:3.9-slim
+    depends_on:
+      nas:
+        condition: service_healthy
+    volumes:
+      - ./agents/browser_agent.py:/app/agent.py
+    working_dir: /app
+    privileged: true 
+    command: >
+      sh -c "
+      apt-get update && apt-get install -y nfs-common &&
+      mkdir -p /mnt/nas &&
+      mount -t nfs -o nolock,vers=4,soft,noac nas:/ /mnt/nas &&
+      pip install requests &&
+      tail -f /dev/null
+      "
+
+  code_sandbox:
+    image: python:3.9-slim
+    depends_on:
+      nas:
+        condition: service_healthy
+    volumes:
+      - ./agents/code_agent.py:/app/agent.py
+    working_dir: /app
+    privileged: true
+    # FIXED: Changed 'nas:/nfsshare' to 'nas:/'
+    command: >
+      sh -c "
+      apt-get update && apt-get install -y nfs-common &&
+      mkdir -p /mnt/nas &&
+      mount -t nfs -o nolock,vers=4,soft,noac nas:/ /mnt/nas &&
+      pip install python-pptx &&
+      tail -f /dev/null
+      "
+
+  terminal_sandbox:
+    image: python:3.9-slim
+    depends_on:
+      nas:
+        condition: service_healthy
+    volumes:
+      - ./agents/terminal_agent.py:/app/agent.py
+    working_dir: /app
+    privileged: true
+    # FIXED: Changed 'nas:/nfsshare' to 'nas:/'
+    command: >
+      sh -c "
+      apt-get update && apt-get install -y nfs-common &&
+      mkdir -p /mnt/nas &&
+      mount -t nfs -o nolock,vers=4,soft,noac nas:/ /mnt/nas &&
+      tail -f /dev/null
+      "
+
+volumes:
+  nas_data:
