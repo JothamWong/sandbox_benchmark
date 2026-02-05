@@ -1,39 +1,39 @@
 version: '3.8'
 
 services:
-  browser-agent:
+  pmem-browser-agent:
     image: python:3.11-slim
-    container_name: browser-agent
+    container_name: pmem-browser-agent
     volumes:
       - /mnt/pmem0:/mnt/pmem0
-      - ./agents/browser_agent.py:/app/agent.py
+      - ../agents/browser_agent.py:/app/agent.py
     environment:
-      - PMEM_PATH=/mnt/pmem0
+      - SHARED_PATH=/mnt/pmem0
     command: >
       sh -c "
       pip install requests &&
       tail -f /dev/null
       "
 
-  code-agent:
+  pmem-code-agent:
     image: python:3.11-slim
-    container_name: code-agent
+    container_name: pmem-code-agent
     volumes:
       - /mnt/pmem0:/mnt/pmem0
-      - ./agents/code_agent.py:/app/agent.py
+      - ../agents/code_agent.py:/app/agent.py
     environment:
-      - PMEM_PATH=/mnt/pmem0
+      - SHARED_PATH=/mnt/pmem0
     command: >
       sh -c "
       pip install python-pptx &&
       tail -f /dev/null
       "
-  terminal-agent:
+  pmem-terminal-agent:
     image: python:3.11-slim
-    container_name: terminal-agent
+    container_name: pmem-terminal-agent
     volumes:
       - /mnt/pmem0:/mnt/pmem0
-      - ./agents/terminal_agent.py:/app/agent.py
+      - ../agents/terminal_agent.py:/app/agent.py
     environment:
-      - PMEM_PATH=/mnt/pmem0
+      - SHARED_PATH=/mnt/pmem0
     command: tail -f /dev/null

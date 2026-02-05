@@ -22,7 +22,7 @@ def download_pdf_task() -> str:
     """
     [Browser Sandbox] Downloads PDF and writes it to the NFS Mount (/mnt/nas).
     """
-    return run_container_task("browser_sandbox")
+    return run_container_task("nfs-browser-agent")
 
 
 @mcp.tool
@@ -30,7 +30,7 @@ def convert_pdf_task() -> str:
     """
     [Code Sandbox] Reads PDF from NFS Mount, converts, writes PPTX to NFS Mount.
     """
-    return run_container_task("code_sandbox")
+    return run_container_task("nfs-code-agent")
 
 
 @mcp.tool
@@ -38,7 +38,7 @@ def verify_pptx_task() -> str:
     """
     [Terminal Sandbox] Reads PPTX from NFS Mount for verification.
     """
-    return run_container_task("terminal_sandbox")
+    return run_container_task("nfs-terminal-agent")
 
 
 @mcp.tool

@@ -3,8 +3,7 @@ import time
 import os
 import sys
 
-# NAS Path (Standard File System)
-NAS_DIR = "/mnt/nas"
+SHARED_PATH = os.environ["SHARED_PATH"]
 PDF_FILENAME = "paper.pdf"
 PDF_URL = "https://arxiv.org/pdf/1706.03762.pdf"
 
@@ -12,17 +11,15 @@ PDF_URL = "https://arxiv.org/pdf/1706.03762.pdf"
 def run():
     print(f"--- [Browser] Processing Job ---")
 
-    # Pre-flight check: Is the NAS accessible?
-    if not os.path.isdir(NAS_DIR):
+    if not os.path.isdir(SHARED_PATH):
         print(
-            f"CRITICAL ERROR: {NAS_DIR} is not a directory. The NFS mount probably failed."
+            f"CRITICAL ERROR: {SHARED_PATH} is not a directory. The NFS mount probably failed."
         )
         sys.exit(1)
 
-    # 1. Processing (Download from Web)
     print(f"Downloading {PDF_URL}...")
     try:
-        # FIX: Arxiv blocks requests without a User-Agent
+        # Arxiv blocks requests without a User-Agent
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
         }
@@ -33,13 +30,9 @@ def run():
 
     except Exception as e:
         print(f"Web Download Error: {e}")
-        print(
-            "Note: If Arxiv is blocking, check your internet connection or the User-Agent."
-        )
         sys.exit(1)
 
-    # 2. Transfer (Write to NAS)
-    target_path = os.path.join(NAS_DIR, PDF_FILENAME)
+    target_path = os.path.join(SHARED_PATH, PDF_FILENAME)
 
     print(f"Writing to NAS mount: {target_path}...")
     start = time.time()
@@ -47,18 +40,12 @@ def run():
     try:
         with open(target_path, "wb") as f:
             f.write(content)
-            f.flush()  # Flush Python buffer
-            os.fsync(f.fileno())  # Force Kernel -> Network -> NAS flush
+            f.flush()
+            os.fsync(f.fileno())
     except OSError as e:
-        print(f"NAS Write Error: {e}")
-        print(
-            "Hint: This usually means permissions on the NFS share are incorrect or the mount is read-only."
-        )
+        print(f"Write Error: {e}")
         sys.exit(1)
-
     duration = time.time() - start
-
-    print(f"SUCCESS: Written to NAS File System.")
     print(f"METRIC_TRANSFER_WRITE: {duration:.6f} seconds")
 
 

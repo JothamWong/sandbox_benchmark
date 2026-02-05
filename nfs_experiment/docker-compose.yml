@@ -26,14 +26,17 @@ services:
       retries: 10
 
   # --- Agent Sandboxes ---
-  browser_sandbox:
+  nfs-browser-agent:
+    container_name: nfs-browser-agent
     image: python:3.9-slim
     depends_on:
       nas:
         condition: service_healthy
     volumes:
-      - ./agents/browser_agent.py:/app/agent.py
+      - ../agents/browser_agent.py:/app/agent.py
     working_dir: /app
+    environment:
+      - SHARED_PATH=/mnt/nas
     privileged: true 
     command: >
       sh -c "
@@ -44,14 +47,17 @@ services:
       tail -f /dev/null
       "
 
-  code_sandbox:
+  nfs-code-agent:
     image: python:3.9-slim
+    container_name: nfs-code-agent
     depends_on:
       nas:
         condition: service_healthy
     volumes:
-      - ./agents/code_agent.py:/app/agent.py
+      - ../agents/code_agent.py:/app/agent.py
     working_dir: /app
+    environment:
+      - SHARED_PATH=/mnt/nas
     privileged: true
     # FIXED: Changed 'nas:/nfsshare' to 'nas:/'
     command: >
@@ -63,16 +69,18 @@ services:
       tail -f /dev/null
       "
 
-  terminal_sandbox:
+  nfs-terminal-agent:
     image: python:3.9-slim
+    container_name: nfs-terminal-agent
     depends_on:
       nas:
         condition: service_healthy
     volumes:
-      - ./agents/terminal_agent.py:/app/agent.py
+      - ../agents/terminal_agent.py:/app/agent.py
     working_dir: /app
     privileged: true
-    # FIXED: Changed 'nas:/nfsshare' to 'nas:/'
+    environment:
+      - SHARED_PATH=/mnt/nas
     command: >
       sh -c "
       apt-get update && apt-get install -y nfs-common &&

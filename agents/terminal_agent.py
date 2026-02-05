@@ -1,27 +1,23 @@
 import time
 import os
 
-PMEM_DIR = "/mnt/pmem0"
+SHARED_PATH = os.environ["SHARED_PATH"]
 PPTX_FILENAME = "presentation.pptx"
 
 
 def run():
     print(f"--- [Terminal] Processing Job ---")
 
-    pptx_path = os.path.join(PMEM_DIR, PPTX_FILENAME)
+    pptx_path = os.path.join(SHARED_PATH, PPTX_FILENAME)
 
-    # 1. Transfer In (Read from PMEM)
-    print(f"Reading from PMEM: {pptx_path}...")
+    print(f"Reading from mount: {pptx_path}...")
     start_read = time.time()
-
     if not os.path.exists(pptx_path):
-        print("Error: Artifact not found on PMEM mount.")
+        print("Error: Artifact not found on mount.")
         return
-
     with open(pptx_path, "rb") as f:
         while chunk := f.read(8192):
             pass
-
     end_read = time.time()
 
     size = os.path.getsize(pptx_path)

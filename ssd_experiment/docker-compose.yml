@@ -1,12 +1,12 @@
 version: '3.8'
 
 services:
-  browser-agent:
+  ssd-browser-agent:
     image: python:3.11-slim
-    container_name: browser-agent
+    container_name: ssd-browser-agent
     volumes:
       - /local/jotham/shared_ssd:/mnt/shared_ssd
-      - ./agents/browser_agent.py:/app/agent.py
+      - ../agents/browser_agent.py:/app/agent.py
     environment:
       - SHARED_PATH=/mnt/shared_ssd
     command: >
@@ -15,12 +15,12 @@ services:
       tail -f /dev/null
       "
 
-  code-agent:
+  ssd-code-agent:
     image: python:3.11-slim
-    container_name: code-agent
+    container_name: ssd-code-agent
     volumes:
       - /local/jotham/shared_ssd:/mnt/shared_ssd
-      - ./agents/code_agent.py:/app/agent.py
+      - ../agents/code_agent.py:/app/agent.py
     environment:
       - SHARED_PATH=/mnt/shared_ssd
     command: >
@@ -28,12 +28,12 @@ services:
       pip install python-pptx &&
       tail -f /dev/null
       "
-  terminal-agent:
+  ssd-terminal-agent:
     image: python:3.11-slim
-    container_name: terminal-agent
+    container_name: ssd-terminal-agent
     volumes:
       - /local/jotham/shared_ssd:/mnt/shared_ssd
-      - ./agents/terminal_agent.py:/app/agent.py
+      - ../agents/terminal_agent.py:/app/agent.py
     environment:
       - SHARED_PATH=/mnt/shared_ssd
     command: tail -f /dev/null

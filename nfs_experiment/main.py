@@ -26,7 +26,7 @@ async def run_supervisor():
     print(f"Loaded {len(tools)} tools: {[t.name for t in tools]}")
     timer = Timer()
     model = ChatOpenAI(
-        model="gpt-4o",
+        model="gpt-5",
         temperature=0,
         callbacks=[timer],
     )
