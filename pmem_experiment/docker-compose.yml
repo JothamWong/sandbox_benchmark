@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  browser-agent:
+    image: python:3.11-slim
+    container_name: browser-agent
+    volumes:
+      - /mnt/pmem0:/mnt/pmem0
+      - ./agents/browser_agent.py:/app/agent.py
+    environment:
+      - PMEM_PATH=/mnt/pmem0
+    networks:
+      - benchmark-net
+    command: >
+      sh -c "
+      pip install requests &&
+      tail -f /dev/null
+      "
+
+  code-agent:
+    image: python:3.11-slim
+    container_name: code-agent
+    volumes:
+      - /mnt/pmem0:/mnt/pmem0
+      - ./agents/code_agent.py:/app/agent.py
+    environment:
+      - PMEM_PATH=/mnt/pmem0
+    networks:
+      - benchmark-net
+    command: >
+      sh -c "
+      pip install python-pptx &&
+      tail -f /dev/null
+      "
+  terminal-agent:
+    image: python:3.11-slim
+    container_name: terminal-agent
+    volumes:
+      - /mnt/pmem0:/mnt/pmem0
+      - ./agents/terminal_agent.py:/app/agent.py
+    environment:
+      - PMEM_PATH=/mnt/pmem0
+    networks:
+      - benchmark-net
+    command: tail -f /dev/null
+
+networks:
+  benchmark-net:
+    driver: bridge
